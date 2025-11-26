@@ -1,0 +1,80 @@
+name: Release
+
+on:
+  release:
+    types: [created]
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Tag name for the release'
+        required: true
+        type: string
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Build project
+      run: npm run build
+
+    - name: Create dist archive
+      run: |
+        cd dist
+        zip -r ../tesla-automation-dist.zip .
+        cd ..
+
+    - name: Get release info
+      id: release_info
+      run: |
+        if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+          echo "tag_name=${{ inputs.tag_name }}" >> $GITHUB_OUTPUT
+          echo "is_manual=true" >> $GITHUB_OUTPUT
+        else
+          echo "tag_name=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
+          echo "is_manual=false" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Create Release (Manual)
+      if: steps.release_info.outputs.is_manual == 'true'
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: ${{ steps.release_info.outputs.tag_name }}
+        name: Release ${{ steps.release_info.outputs.tag_name }}
+        draft: false
+        prerelease: false
+        files: |
+          tesla-automation-dist.zip
+        body: |
+          ## Release ${{ steps.release_info.outputs.tag_name }}
+          
+          Manual release created via GitHub Actions.
+          
+          ### Installation
+          1. Download `tesla-automation-dist.zip`
+          2. Extract the archive
+          3. Install dependencies: `npm install --production`
+          4. Set `NODE_ENV=production`
+          5. Run: `npm start`
+
+    - name: Upload Release Asset (Automatic)
+      if: steps.release_info.outputs.is_manual == 'false'
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: ${{ steps.release_info.outputs.tag_name }}
+        files: |
+          tesla-automation-dist.zip

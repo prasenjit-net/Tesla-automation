@@ -1,9 +1,9 @@
 export default function Home() {
     return (
         <div>
-            <h1>Tesla Automation</h1>
+            <h1>Full-Stack TypeScript Application</h1>
             <p>
-                A full-stack TypeScript web application with:
+                This is a TypeScript full-stack web application with:
             </p>
             <ul style={{ textAlign: 'left', maxWidth: '600px', margin: '0 auto' }}>
                 <li><strong>Backend:</strong> Node.js + Express + TypeScript</li>
