@@ -1,6 +1,6 @@
-# Tesla Automation
+# Full-Stack TypeScript Web Application
 
-A modern full-stack TypeScript web application built with Node.js/Express backend and React frontend in a unified monorepo structure.
+A modern full-stack web application built with TypeScript, featuring a Node.js/Express backend and React frontend in a unified monorepo structure.
 
 ## Tech Stack
 
